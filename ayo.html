@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aYo Safebuild Damage Reporting System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #031b13;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #0bd3c2, #0bd3c2);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 28px;
+            color: #0bd3c2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            animation: logo-bounce 1s ease, logo-color 2s linear, pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+            }
+        }
+        @keyframes logo-color {
+            0%   { background: #3498db; }
+            25%  { background: #e74c3c; }
+            50%  { background: #2ecc71; }
+            75%  { background: #f39c12; }
+            100% { background: #3498db; }
+        }
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            flex: 1;
+        }
+        .nav-tab:hover {
+            background: #e8f4fc;
+        }
+        .nav-tab.active {
+            background: #0bd3c2;
+            color: white;
+            font-weight: bold;
+        }
+        .content-section {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .btn {
+            background: #0bd3c2;;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-danger {
+            background: #e74c3c;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .damage-list {
+            list-style: none;
+        }
+        .damage-item {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .damage-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .damage-meta {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status.pending {
+            background: #ffeaa7;
+            color: #d35400;
+        }
+        .status.in-progress {
+            background: #81ecec;
+            color: #00cec9;
+        }
+        .status.resolved {
+            background: #55efc4;
+            color: #00b894;
+        }
+        .confirmation {
+            text-align: center;
+            padding: 40px;
+        }
+        .confirmation i {
+            font-size: 60px;
+            color: #2ecc71;
+            margin-bottom: 20px;
+        }
+        .admin-panel {
+            background: #fff8e1;
+            border: 1px solid #ffd54f;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .admin-panel h3 {
+            color: #d35400;
+            margin-bottom: 15px;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            .filters {
+                flex-direction: column;
+            }
+        }
+        .login-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .admin-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        .admin-table tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <b><i >aYo</i></b><div class="logo"><i >aYo</i></div>
+            </div>
+            <h1>aYo Safebuild Damage Reporting System</h1>
+            <p>Report equipment and facility damages quickly and efficiently</p>
+        </header>
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-target="report">Report Damage</div>
+            <div class="nav-tab" data-target="status">Check Status</div>
+            <div class="nav-tab" data-target="history">Report History</div>
+            <div class="nav-tab" data-target="admin">Admin Login</div>
+        </div>
+        <div id="report" class="content-section active">
+            <h2>Report New Damage</h2>
+            <p>Please provide details about the damage below. All fields are required.</p>
+            <form id="damageForm">
+                <div class="form-group">
+                    <label for="employeeName">Your Name</label>
+                    <input type="text" id="employeeName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="employeeId">Employee ID</label>
+                    <input type="text" id="employeeId" required placeholder="Enter your employee ID">
+                </div>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <select id="department" required>
+                        <option value="">Select Department</option>
+                        <option value="production">Production</option>
+                        <option value="shipping">Shipping & Receiving</option>
+                        <option value="office">Office Administration</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="damageType">Type of Damage</label>
+                    <select id="damageType" required>
+                        <option value="">Select Damage Type</option>
+                        <option value="equipment">Equipment Failure</option>
+                        <option value="facility">Facility Damage</option>
+                        <option value="safety">Safety Hazard</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="location">Damage Location</label>
+                    <input type="text" id="location" required placeholder="Where is the damage located?">
+                </div>
+                <div class="form-group">
+                    <label for="date">Date Damage Occurred</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Damage Description</label>
+                    <textarea id="description" required placeholder="Please describe the damage in detail"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="urgency">Urgency Level</label>
+                    <select id="urgency" required>
+                        <option value="">Select Urgency</option>
+                        <option value="low">Low - No immediate impact</option>
+                        <option value="medium">Medium - Some impact on operations</option>
+                        <option value="high">High - Significant impact on operations</option>
+                        <option value="critical">Critical - Safety hazard or production stopped</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Submit Damage Report</button>
+            </form>
+        </div>
+        <div id="status" class="content-section">
+            <h2>Check Report Status</h2>
+            <p>Enter your report ID to check the status of your damage report.</p>
+            <div class="form-group">
+                <label for="reportId">Report ID</label>
+                <input type="text" id="reportId" placeholder="Enter your report ID">
+            </div>
+            <button class="btn" onclick="checkStatus()">Check Status</button>
+            <div id="statusResult" style="margin-top: 20px; display: none;">
+                <h3>Report Status</h3>
+                <div class="damage-item">
+                    <div class="damage-title" id="statusTitle">Broken conveyor belt in Section B</div>
+                    <div class="damage-meta">
+                        Reported on: <span id="statusDate">2023-10-15</span> | 
+                        Department: <span id="statusDept">Production</span>
+                    </div>
+                    <div>
+                        Status: <span class="status in-progress" id="statusText">In Progress</span>
+                    </div>
+                    <p id="statusNotes" style="margin-top: 10px;">Maintenance team has been notified. Parts on order.</p>
+                </div>
+            </div>
+        </div>
+        <div id="history" class="content-section">
+            <h2>Your Report History</h2>
+            <p>View your previously submitted damage reports.</p>
+            <div class="form-group">
+                <label for="historyEmployeeId">Employee ID</label>
+                <input type="text" id="historyEmployeeId" placeholder="Enter your employee ID">
+            </div>
+            <button class="btn" onclick="loadHistory()">View History</button>
+            <ul class="damage-list" id="reportHistory" style="margin-top: 20px;"></ul>
+        </div>
+        <div id="admin" class="content-section">
+            <h2>Admin Login</h2>
+            <p>Enter admin credentials to access the damage reports dashboard.</p>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" placeholder="Admin username">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Admin password">
+                </div>
+                <button class="btn" onclick="adminLogin()">Login</button>
+            </div>
+            <div id="adminPanel" style="display: none;">
+                <h3>Damage Reports Dashboard</h3>
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="filterStatus">Filter by Status</label>
+                        <select id="filterStatus" onchange="filterReports()">
+                            <option value="all">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterUrgency">Filter by Urgency</label>
+                        <select id="filterUrgency" onchange="filterReports()">
+                            <option value="all">All Urgency Levels</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterDepartment">Filter by Department</label>
+                        <select id="filterDepartment" onchange="filterReports()">
+                            <option value="all">All Departments</option>
+                            <option value="production">Production</option>
+                            <option value="shipping">Shipping & Receiving</option>
+                            <option value="office">Office Administration</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Issue</th>
+                            <th>Urgency</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminReportsList"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="confirmation" class="content-section">
+            <div class="confirmation">
+                <i class="fas fa-check-circle"></i>
+                <h2>Damage Report Submitted Successfully!</h2>
+                <p>Your report has been received and logged.</p>
+                <p>Your report ID is: <strong id="reportNumber">DMG-48592</strong></p>
+                <p>The admin team has been notified and will address the issue.</p>
+                <div class="action-buttons">
+                    <button class="btn" onclick="switchTab('report')">Submit Another Report</button>
+                </div>
+            </div>
+        </div>
+        <footer>
+                       <p>Company Damage Reporting System &copy; 2025</p>
+           <marquee behavior="scroll" direction="left">For assistance, contact Facilities Management at extension 0244300000</marquee>
+
+        </footer>
+    </div>
+    <script>
+    // Sample data for demonstration
+    if (!localStorage.getItem('damageReports')) {
+        const sampleReports = [
+            {
+                id: 'DMG-48592',
+                employeeName: 'IY',
+                employeeId: 'EMP-1025',
+                department: 'Customer service',
+                damageType: 'equipment',
+                location: 'Call center',
+                date: '2025-08-29',
+                description: 'Broken headset microphones',
+                urgency: 'high',
+                status: 'in-progress',
+                statusText: 'In Progress',
+                notes: 'Maintenance team has been notified. Parts on order.',
+                dateReported: '2025-08-29'
+            },
+            {
+                id: 'DMG-47721',
+                employeeName: 'AF',
+                employeeId: 'EMP-2041',
+                department: 'office',
+                damageType: 'facility',
+                location: 'Break room',
+                date: '2025-08-29',
+                description: 'Leaking pipe under the sink',
+                urgency: 'medium',
+                status: 'resolved',
+                statusText: 'Resolved',
+                notes: 'Plumber called and issue resolved on 10/9/2025',
+                dateReported: '2025-08-29'
+            }
+        ];
+        localStorage.setItem('damageReports', JSON.stringify(sampleReports));
+    }
+    // Tab navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.getAttribute('data-target');
+            switchTab(target);
+        });
+    });
+    function switchTab(tabName) {
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(tabName).classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`.nav-tab[data-target="${tabName}"]`).classList.add('active');
+    }
+    // Form submission
+    document.getElementById('damageForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const reportNum = 'DMG-' + Math.floor(10000 + Math.random() * 90000);
+        const report = {
+            id: reportNum,
+            employeeName: document.getElementById('employeeName').value,
+            employeeId: document.getElementById('employeeId').value,
+            department: document.getElementById('department').value,
+            damageType: document.getElementById('damageType').value,
+            location: document.getElementById('location').value,
+            date: document.getElementById('date').value,
+            description: document.getElementById('description').value,
+            urgency: document.getElementById('urgency').value,
+            status: 'pending',
+            statusText: 'Pending Review',
+            notes: 'Report submitted and awaiting review',
+            dateReported: new Date().toISOString().split('T')[0]
+        };
+        const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+        reports.push(report);
+        localStorage.setItem('damageReports', JSON.stringify(reports));
+        document.getElementById('reportNumber').textContent = reportNum;
+        switchTab('confirmation');
+        document.getElementById('damageForm').reset();
+        document.getElementById('date').valueAsDate = new Date();
+    });
+    // Check status function
+    function checkStatus() {
+        const reportId = document.getElementById('reportId').value;
+        if (!reportId) {
+            alert('Please enter a report ID');
+            return;
+        }
+        const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+        const report = reports.find(r => r.id === reportId);
+        if (report) {
+            document.getElementById('statusTitle').textContent = report.description;
+            document.getElementById('statusDate').textContent = report.dateReported;
+            document.getElementById('statusDept').textContent = report.department;
+            document.getElementById('statusText').textContent = report.statusText;
+            document.getElementById('statusText').className = 'status ' + report.status;
+            document.getElementById('statusNotes').textContent = report.notes;
+            document.getElementById('statusResult').style.display = 'block';
+        } else {
+            alert('Report not found. Please check your report ID.');
+        }
+    }
+    // Load history function
+    function loadHistory() {
+        const employeeId = document.getElementById('historyEmployeeId').value;
+        if (!employeeId) {
+            alert('Please enter your employee ID');
+            return;
+        }
+        const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+        const userReports = reports.filter(r => r.employeeId === employeeId);
+        const historyList = document.getElementById('reportHistory');
+        historyList.innerHTML = '';
+        if (userReports.length === 0) {
+            historyList.innerHTML = '<li>No reports found for your employee ID.</li>';
+            return;
+        }
+        userReports.forEach(report => {
+            const li = document.createElement('li');
+            li.className = 'damage-item';
+            li.innerHTML = `
+                <div class="damage-title">${report.description}
+                    <span class="status ${report.status}">${report.statusText}</span>
+                </div>
+                <div class="damage-meta">
+                    Report ID: ${report.id} | Reported on: ${report.dateReported} | 
+                    Department: ${report.department} | Urgency: ${report.urgency}
+                </div>
+                <div>
+                    Location: ${report.location}
+                </div>
+                <p>${report.notes}</p>
+            `;
+            historyList.appendChild(li);
+        });
+    }
+    // Admin login function
+    function adminLogin() {
+        const username = document.getElementById('adminUsername').value;
+        const password = document.getElementById('adminPassword').value;
+        if (username === 'admin' && password === 'admin123') {
+            document.getElementById('adminPanel').style.display = 'block';
+            loadAdminReports();
+        } else {
+            alert('Invalid admin credentials. Try username: admin, password: admin123');
+        }
+    }
+    // Load reports for admin
+    function loadAdminReports() {
+        const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+        const reportsList = document.getElementById('adminReportsList');
+        reportsList.innerHTML = '';
+        if (reports.length === 0) {
+            reportsList.innerHTML = '<tr><td colspan="8">No damage reports found.</td></tr>';
+            return;
+        }
+        reports.forEach(report => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${report.id}</td>
+                <td>${report.dateReported}</td>
+                <td>${report.employeeName}<br><small>${report.employeeId}</small></td>
+                <td>${report.department}</td>
+                <td>${report.description}<br><small>${report.location}</small></td>
+                <td>${report.urgency}</td>
+                <td><span class="status ${report.status}">${report.statusText}</span></td>
+                <td>
+                    <div class="report-actions">
+                        <button class="btn" onclick="updateStatus('${report.id}', 'in-progress')">In Progress</button>
+                        <button class="btn" onclick="updateStatus('${report.id}', 'resolved')">Resolve</button>
+                    </div>
+                </td>
+            `;
+            reportsList.appendChild(tr);
+        });
+    }
+    // Update report status
+    function updateStatus(reportId, status) {
+        const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+        const reportIndex = reports.findIndex(r => r.id === reportId);
+        if (reportIndex !== -1) {
+            if (status === 'in-progress') {
+                reports[reportIndex].status = 'in-progress';
+                reports[reportIndex].statusText = 'In Progress';
+                reports[reportIndex].notes = 'Maintenance team is working on the issue';
+            } else if (status === 'resolved') {
+                reports[reportIndex].status = 'resolved';
+                reports[reportIndex].statusText = 'Resolved';
+                reports[reportIndex].notes = 'Issue has been resolved';
+            }
+            localStorage.setItem('damageReports', JSON.stringify(reports));
+            loadAdminReports();
+        }
+
+        
+        
+    }
+    // Filter reports
+    function filterReports() {
+        const statusFilter = document.getElementById('filterStatus').value;
+        const urgencyFilter = document.getElementById('filterUrgency').value;
+        const departmentFilter = document.getElementById('filterDepartment').value;
+        const reports = JSON.parse(localStorage.getItem('damageReports') || '[]');
+        const reportsList = document.getElementById('adminReportsList');
+        reportsList.innerHTML = '';
+        const filteredReports = reports.filter(report => {
+            return (statusFilter === 'all' || report.status === statusFilter) &&
+                   (urgencyFilter === 'all' || report.urgency === urgencyFilter) &&
+                   (departmentFilter === 'all' || report.department === departmentFilter);
+        });
+        if (filteredReports.length === 0) {
+            reportsList.innerHTML = '<tr><td colspan="8">No reports match the selected filters.</td></tr>';
+            return;
+        }
+        filteredReports.forEach(report => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${report.id}</td>
+                <td>${report.dateReported}</td>
+                <td>${report.employeeName}<br><small>${report.employeeId}</small></td>
+                <td>${report.department}</td>
+                <td>${report.description}<br><small>${report.location}</small></td>
+                <td>${report.urgency}</td>
+                <td><span class="status ${report.status}">${report.statusText}</span></td>
+                <td>
+                    <div class="report-actions">
+                        <button class="btn" onclick="updateStatus('${report.id}', 'in-progress')">In Progress</button>
+                        <button class="btn" onclick="updateStatus('${report.id}', 'resolved')">Resolve</button>
+                    </div>
+                </td>
+            `;
+            reportsList.appendChild(tr);
+        });
+    }
+    // Set today's date as default for the date field
+    document.getElementById('date').valueAsDate = new Date();
+    </script>
+</body>
+</html>
